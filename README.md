@@ -3,6 +3,8 @@ A Tampermonkey user script that enhances the UJM activity log
 
 https://jobsearch.direct.gov.uk/Account/ActivityHistory.aspx
 
+see my blog entry at http://hwhap.com/2016/07/25/fixing-ujm/
+
 Features:
 
 - javascript validation on the length of avtivities
