@@ -11,15 +11,28 @@
 (function() {
     'use strict';
     
-    var UJM_TIMEOUT_MINS = 1, UJM_MAX_NOTE_LENGTH=240;
-    
+    var UJM_TIMEOUT_MINS = 30,UJM_MIN_NOTE_LENGTH=10, UJM_MAX_NOTE_LENGTH=240;
+    var idleMins=0,now;
     var infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");    
     var noteT=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_NoteTextArea");
     noteT.style.height="350px";
     noteT.style.backgroundColor="rgb(240, 242, 123)";
     noteT.style.fontSize= "1.5em";
     noteT.addEventListener("keyup", checkNote );
-    noteT.addEventListener("paste", function () { setTimeout(checkNote, 1000);} );
+    noteT.addEventListener("paste", 
+                           function () { 
+                                         //setTimeout(, 1000);
+                                         setTimeout ( function () {
+                                             checkNote();
+                                             if (autoPost &&  
+                                                (noteT.value.length <= UJM_MAX_NOTE_LENGTH) && 
+                                                (noteT.value.length >= UJM_MIN_NOTE_LENGTH) &&
+                                                (idleMins < UJM_TIMEOUT_MINS) ) {
+                                                                                   console.log("auto posted " + noteT.value );
+                                                                                   doUjLog();
+                                                                                }
+                                                },1000);
+                           });
     // add global DOM  variables for gmail api cb function
     var s = document.createElement('script');
     s.type = 'text/javascript';
@@ -42,7 +55,7 @@
     //console.log(dd+"/"+mm+"/"+yyyy);
     var dayofweek=['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][today.getDay()];
     var timeDateSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage4");
-    var idleMins=0,now;
+    
 
   
     function updateIdleTimer()
@@ -106,6 +119,8 @@ zNode.innerHTML = '<button id="myButton" type="button">'
                 + 'Rnd</button>'
                  + '<button id="truncate" type="button">'
                 + 'truncate</button>'
+                 + '<button id="autopost" type="button">'
+                + 'Auto Post ON</button>'
                 ;
 zNode.setAttribute ('id', 'myContainer');
 document.body.appendChild (zNode);
@@ -121,8 +136,16 @@ document.body.appendChild (gmailApiHtml);
         gmailApiHtml.type = 'text/javascript';
     //gmailApiHtml.async = true;
 gmailApiHtml.setAttribute ('src', 'https://apis.google.com/js/client.js?onload=checkAuth');
-document.head.appendChild (gmailApiHtml);
+//document.head.appendChild (gmailApiHtml);
 document.getElementById("authorize-button").addEventListener("click", handleAuthClick,false);
+var APButton= document.getElementById("autopost");
+    APButton.addEventListener("click", toggleAP,false);
+var autoPost=true;
+function toggleAP (){
+    autoPost = !autoPost;
+    APButton.innerText = autoPost ? " Auto Post ON" : "Auto Post OFF";
+    APButton.style.backgroundColor=  autoPost ? " red" : "green";
+}
 
 //--- Activate the newly added button.
 document.getElementById ("myButton").addEventListener (
@@ -132,11 +155,10 @@ document.getElementById ("myButton").addEventListener (
         document.getElementById ("truncate").addEventListener (
     "click", function () {noteT.value=noteT.value.substring(0,240);checkNote();}, false);
 
-    var logs = [ 'Add all you activities to the logs array on line 135',
+       var logs = [ 'Add all you activities to the logs array on line 135',
                   'Add all you activities to the logs array on line 135',
                   'Add all you activities to the logs array on line 135'
-              ];
-    
+              ]; 
 
     var t0 = performance.now();
         for(var i = 0; i < logs.length; i = i + 1) {
@@ -163,8 +185,9 @@ console.log("Call to sort took " + (t1 - t0) + " milliseconds.");
     selectHTML += "</select>";
     newDiv.innerHTML = selectHTML;
     //document.getElementById(divName).appendChild(newDiv);
-            divName.appendChild(newDiv);
-document.getElementById("noteSelect").addEventListener("change", function(){ document.getElementsByName("MasterPage1:RightColumnContent:InsertJobSearchNote:NoteTextArea")[0].value=document.getElementById("noteSelect").value; });
+    divName.appendChild(newDiv);
+    document.getElementById("noteSelect").addEventListener("change", 
+                    function(){ document.getElementsByName("MasterPage1:RightColumnContent:InsertJobSearchNote:NoteTextArea")[0].value=document.getElementById("noteSelect").value; });
 
 }
     
@@ -183,12 +206,7 @@ function doUjLog () {
 
 }
 function ButtonClickAction (zEvent) {
-    /*--- For our dummy action, we'll just add a line of text to the top
-        of the screen.
-    */
-   /* var zNode       = document.createElement ('p');
-    zNode.innerHTML = 'The button was clicked.';
-    document.getElementById ("myContainer").appendChild (zNode);*/
+// add generic entry to log or the one that was entered into textarea 
     if (document.getElementsByName("MasterPage1:RightColumnContent:InsertJobSearchNote:NoteTextArea")[0].value=="For example, enter details about following up on a job referral or calling about a job advertised in the newspaper.")
     {//add a default message
     var dailyLog=['logged onto UJM and searched jobs',
@@ -206,6 +224,13 @@ function ButtonClickAction (zEvent) {
 }
     
     GM_addStyle ( multilineStr ( function () {/*!
+    
+    #autopost {
+    background-color: red;
+    color: white;
+    border: 1px solid;
+    width: 150px;
+}
     #myContainer {
         position:               absolute;
 top: 35.7px;
@@ -387,4 +412,3 @@ function multilineStr (dummyFunc) {
       }
    
 })();
-
