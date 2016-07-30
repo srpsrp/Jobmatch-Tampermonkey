@@ -7,7 +7,7 @@ see my blog entry at http://hwhap.com/2016/07/25/fixing-ujm/
 
 Features:
 
-- javascript validation on the length of avtivities
+- javascript validation on the length of notes
 - warning of idle session timeout if you edit a note
 - onscreen display of idle time  
 - improved styling and removal of icky DWP nonsense
