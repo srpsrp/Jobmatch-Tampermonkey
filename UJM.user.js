@@ -11,98 +11,93 @@
 (function() {
     'use strict';
     
-    var UJM_TIMEOUT_MINS = 25;
+    var UJM_TIMEOUT_MINS = 1, UJM_MAX_NOTE_LENGTH=240;
     
-        //var noteT=document.getElementsByName("MasterPage1:RightColumnContent:InsertJobSearchNote:NoteTextArea")[0];
-        var noteT=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_NoteTextArea");
+    var infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");    
+    var noteT=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_NoteTextArea");
     noteT.style.height="350px";
     noteT.style.backgroundColor="rgb(240, 242, 123)";
     noteT.style.fontSize= "1.5em";
     noteT.addEventListener("keyup", checkNote );
     noteT.addEventListener("paste", function () { setTimeout(checkNote, 1000);} );
-var infoSpan;
-    
-    
-    // global  variables for gmail api cb function
+    // add global DOM  variables for gmail api cb function
     var s = document.createElement('script');
     s.type = 'text/javascript';
     s.innerText = "var checkAuth, handleAuthResult";
     document.getElementsByTagName('head')[0].appendChild(s);
-    
-    var tdc=0,td=0;
     var today = new Date();
-    var ddy = today.getDate()-1;
-    var dd = today.getDate();
-
+    var yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    var ddy = yesterday.getDate();
+    var mmy = yesterday.getMonth()+1; //January is 0!
+    var yyyyy = yesterday.getFullYear();
     
-
+    var dd = today.getDate();
     var mm = today.getMonth()+1; //January is 0!
-
-
-
     var yyyy = today.getFullYear();
-    if(dd<10){
-    dd='0'+dd;
-} 
-if(mm<10){
-    mm='0'+mm;
-}
-            console.log(dd+"/"+mm+"/"+yyyy);
+    if(dd<10) dd ='0'+ dd;
+    if(mm<10) mm ='0'+ mm;
+    if(ddy<10) ddy ='0'+ ddy;
+    if(mmy<10) mmy ='0'+ mmy;
+    //console.log(dd+"/"+mm+"/"+yyyy);
     var dayofweek=['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][today.getDay()];
     var timeDateSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage4");
-    var idleMins=0;
+    var idleMins=0,now;
 
-
+  
     function updateIdleTimer()
-                {
-                 timeDateSpan.innerText= idleMins++ + " mins. idle "+
-                    today.toLocaleTimeString().replace(" BST", "")+
-                    " " +dayofweek  +
+    {
+                    now = new Date();
+                    idleMins=Math.round((now.getTime()-today.getTime())/60000);
+
+                    timeDateSpan.innerText= idleMins + " mins. idle " +
+                    today.toLocaleTimeString().replace(" BST", "") +
+                    " " + dayofweek  +
                     " " + dd+"/"+mm+"/"+yyyy; 
-                }
+
+                    if (idleMins >= UJM_TIMEOUT_MINS)addWarning();
+    }
     updateIdleTimer();
     setInterval(updateIdleTimer, 60000);    
-    var tds=document.getElementsByTagName("td");
-    console.log(tds.length+" tds.length" +" tdc is" +tdc );
-    console.log(tdc<=tds.length);
+    
+    //Process Dates in table 
+    var tds=document.getElementsByTagName("td"), tdc=0,td=0; //td tags counter, td element
     while (tdc<tds.length )
     { 
-             console.log("text "+td.innerText + tdc);
-       td=tds[tdc]    ;tdc+=1;
-        if (td.innerText.search(ddy+"/"+mm+"/"+yyyy)==0) td.innerText="Yesterday";
+        td=tds[tdc++];
+        if (td.innerText.search(ddy+"/"+mmy+"/"+yyyyy)==0) td.innerText="Yesterday";
         if (td.innerText.search(dd+"/"+mm+"/"+yyyy)==0) td.innerText="Today";
     } 
-                                                                             
-                                                                             
+    var newone;
+    function addWarning(){
+       // infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");
+        noteT.style.backgroundColor="#f2b5b5"; 
+        if(idleMins>=UJM_TIMEOUT_MINS ) 
+        {
+            infoSpan.innerText="TIMED OUT! " +noteT.value.length +" chars";
+        }else{
+                    infoSpan.innerText= noteT.value.length +" chars";
+        }
 
-    
-function checkNote(){  
-        var d = new Date();
-    var n = d.toString();
-             infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");
-
-
-                       if (noteT.value.length <= 240 && idleMins < UJM_TIMEOUT_MINS ) 
-                       { noteT.style.backgroundColor="rgb(240, 242, 123)";
-                       
-                           infoSpan.classList.remove("blink_me");
-                            infoSpan.innerText= noteT.value.length +" chars";
-                       } else
-                       {
-                           noteT.style.backgroundColor="#f2b5b5"; 
-                           //infoSpan.classList.remove("blink_me");
-                                                      infoSpan.innerText= noteT.value.length +" chars";
-                           if(idleMins>UJM_TIMEOUT_MINS) infoSpan.innerText="TIMED OUT! " +infoSpan.innerText;
-
-                           infoSpan.classList.add("blink_me");
-
-
-                           var newone = infoSpan.cloneNode(true);
-                           infoSpan.parentNode.replaceChild(newone, infoSpan);
-
-
-                       }
-                    }
+        
+        infoSpan.classList.add("blink_me");
+        
+        //strangeness re. can't update innerText whilst animation in progrees..
+        newone = infoSpan.cloneNode(true);
+        infoSpan.parentNode.replaceChild(newone, infoSpan);
+        infoSpan=newone;
+    }
+    function checkNote(){
+       // var d = new Date();
+        //var n = d.toString();
+        if (noteT.value.length <= UJM_MAX_NOTE_LENGTH && idleMins < UJM_TIMEOUT_MINS ) { 
+                noteT.style.backgroundColor="rgb(240, 242, 123)";
+                // note that we must get new refference here since was replaced 
+               // infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");
+                infoSpan.classList.remove("blink_me");
+                infoSpan.innerText= noteT.value.length +" chars";                      
+                 } else addWarning();
+    }    
 
 var zNode       = document.createElement ('div');
 zNode.innerHTML = '<button id="myButton" type="button">'
@@ -137,10 +132,9 @@ document.getElementById ("myButton").addEventListener (
         document.getElementById ("truncate").addEventListener (
     "click", function () {noteT.value=noteT.value.substring(0,240);checkNote();}, false);
 
-    var logs = ['add all your options into the logs array on line #140' ,
-                'add all your options into the logs array on line #140',
-                'add all your options into the logs array on line #140'    
-            
+    var logs = [ 'Add all you activities to the logs array on line 135',
+                  'Add all you activities to the logs array on line 135',
+                  'Add all you activities to the logs array on line 135'
               ];
     
 
@@ -288,12 +282,13 @@ function multilineStr (dummyFunc) {
     
     
     /*
-     * google email stuff below here (beta) 
+     * google email stuff below here
      */
     console.log("google code");
      // Your Client ID can be retrieved from your project in the Google
       // Developer Console, https://console.developers.google.com
-        var CLIENT_ID = 'enter client ID';
+    //  var CLIENT_ID = '636079679638-rho18up49rpksvpp91mptnaltut66j8g.apps.googleusercontent.com';
+        var CLIENT_ID = '636079679638-74f1u4o40vj4ts7hbpjg817o9amdj4qb.apps.googleusercontent.com';
 
 
 
@@ -392,4 +387,4 @@ function multilineStr (dummyFunc) {
       }
    
 })();
- 
+
