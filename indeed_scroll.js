@@ -1,10 +1,17 @@
+// ==UserScript==
+// @name         scroll
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        http://www.indeed.co.uk/*
+// @grant        none
+// ==/UserScript==
 
-n() {
+(function() {
     'use strict';
 
-    /* A user script rendition of a Javascriptlet scroller*
-      based on:
-      The Autoscroll Bookmarket:Tim Harper:http://tim.theenchanter.com*/
+    /*The Autoscroll Bookmarket:Tim Harper:http://tim.theenchanter.com*/
 var _ss_interval_pointer="notstarted";
 var _ss_speed = 6;
 var running=false;
