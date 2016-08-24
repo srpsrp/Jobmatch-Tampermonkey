@@ -11,9 +11,11 @@
 (function() {
     'use strict';
     
-    var UJM_TIMEOUT_MINS = 30,UJM_MIN_NOTE_LENGTH=10, UJM_MAX_NOTE_LENGTH=240;
+    var UJM_TIMEOUT_MINS = 27,UJM_MIN_NOTE_LENGTH=10, UJM_MAX_NOTE_LENGTH=240;
     var idleMins=0,now;
-    var infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");    
+    var infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");
+    var timeDateSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage4");
+
     var noteT=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_NoteTextArea");
     noteT.style.height="350px";
     noteT.style.backgroundColor="rgb(240, 242, 123)";
@@ -54,25 +56,7 @@
     if(mmy<10) mmy ='0'+ mmy;
     //console.log(dd+"/"+mm+"/"+yyyy);
     var dayofweek=['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][today.getDay()];
-    var timeDateSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage4");
-    
 
-  
-    function updateIdleTimer()
-    {
-                    now = new Date();
-                    idleMins=Math.round((now.getTime()-today.getTime())/60000);
-
-                    timeDateSpan.innerText= idleMins + " mins. idle " +
-                    today.toLocaleTimeString().replace(" BST", "") +
-                    " " + dayofweek  +
-                    " " + dd+"/"+mm+"/"+yyyy; 
-
-                    if (idleMins >= UJM_TIMEOUT_MINS)addWarning();
-    }
-    updateIdleTimer();
-    setInterval(updateIdleTimer, 60000);    
-    
     //Process Dates in table 
     var tds=document.getElementsByTagName("td"), tdc=0,td=0; //td tags counter, td element
     while (tdc<tds.length )
@@ -81,11 +65,14 @@
         if (td.innerText.search(ddy+"/"+mmy+"/"+yyyyy)==0) td.innerText="Yesterday";
         if (td.innerText.search(dd+"/"+mm+"/"+yyyy)==0) td.innerText="Today";
     } 
+    updateIdleTimer(); setInterval(updateIdleTimer, 60000);
+
+
     var newone;
     function addWarning(){
        // infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");
-        noteT.style.backgroundColor="#f2b5b5"; 
-        if(idleMins>=UJM_TIMEOUT_MINS ) 
+        noteT.style.backgroundColor="#f2b5b5";
+        if(idleMins>=UJM_TIMEOUT_MINS )
         {
             infoSpan.innerText="TIMED OUT! " +noteT.value.length +" chars";
         }else{
@@ -103,25 +90,24 @@
     function checkNote(){
        // var d = new Date();
         //var n = d.toString();
-        if (noteT.value.length <= UJM_MAX_NOTE_LENGTH && idleMins < UJM_TIMEOUT_MINS ) { 
+        if (noteT.value.length <= UJM_MAX_NOTE_LENGTH && idleMins < UJM_TIMEOUT_MINS ) {
                 noteT.style.backgroundColor="rgb(240, 242, 123)";
-                // note that we must get new refference here since was replaced 
+                // note that we must get new refference here since was replaced
                // infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");
                 infoSpan.classList.remove("blink_me");
-                infoSpan.innerText= noteT.value.length +" chars";                      
+                infoSpan.innerText= noteT.value.length +" chars";
                  } else addWarning();
-    }    
+    }
 
 var zNode       = document.createElement ('div');
-zNode.innerHTML = '<button id="myButton" type="button">'
-                + 'post</button>'
-                + '<button id="randomLog" type="button">'
-                + 'Rnd</button>'
-                 + '<button id="truncate" type="button">'
-                + 'truncate</button>'
-                 + '<button id="autopost" type="button">'
-                + 'Auto Post ON</button>'
-                ;
+zNode.innerHTML = '<button id="myButton" type="button">'+
+                'post</button>' +
+                '<button id="randomLog" type="button">' +
+                'Rnd</button>' +
+                '<button id="truncate" type="button">' +
+                'truncate</button>' +
+                '<button id="autopost" type="button">' +
+                'Auto Post ON</button>';
 zNode.setAttribute ('id', 'myContainer');
 document.body.appendChild (zNode);
 
@@ -140,11 +126,18 @@ gmailApiHtml.setAttribute ('src', 'https://apis.google.com/js/client.js?onload=c
 document.getElementById("authorize-button").addEventListener("click", handleAuthClick,false);
 var APButton= document.getElementById("autopost");
     APButton.addEventListener("click", toggleAP,false);
-var autoPost=true;
-function toggleAP (){
-    autoPost = !autoPost;
-    APButton.innerText = autoPost ? " Auto Post ON" : "Auto Post OFF";
-    APButton.style.backgroundColor=  autoPost ? " red" : "green";
+
+    var autoPost = getCookie("autopost");
+    autoPost=(autoPost === "") ? false : (autoPost == "on");
+    toggleAP(true,true);
+    // var autoPost=true;
+function toggleAP (e, toggleInit){
+    if (toggleInit===undefined ){
+        autoPost = !autoPost;
+        setCookie("autopost", autoPost ? "on":"off", 365);
+    }
+        APButton.innerText = autoPost ? " Auto Post ON" : "Auto Post OFF";
+        APButton.style.backgroundColor=  autoPost ? " red" : "green";
 }
 
 //--- Activate the newly added button.
@@ -155,10 +148,10 @@ document.getElementById ("myButton").addEventListener (
         document.getElementById ("truncate").addEventListener (
     "click", function () {noteT.value=noteT.value.substring(0,240);checkNote();}, false);
 
-       var logs = [ 'Add all you activities to the logs array on line 135',
+          var logs = [ 'Add all you activities to the logs array on line 135',
                   'Add all you activities to the logs array on line 135',
                   'Add all you activities to the logs array on line 135'
-              ]; 
+              ];  
 
     var t0 = performance.now();
         for(var i = 0; i < logs.length; i = i + 1) {
@@ -215,6 +208,8 @@ function ButtonClickAction (zEvent) {
                'log onto UJM and indeed',
                'checked  Universal Job Match for new jobs',
                'went onto UJM online and checked jobs',
+               'did search for new jobs on UJM',
+               'logged onto job match to look for jobs',
                'went through new jobs on indeed and jobmatch', 'logged on to UJM to search jobs' ];
     
    document.getElementsByName("MasterPage1:RightColumnContent:InsertJobSearchNote:NoteTextArea")[0].value=dailyLog[Math.floor(Math.random()*dailyLog.length)];
@@ -225,6 +220,18 @@ function ButtonClickAction (zEvent) {
     
     GM_addStyle ( multilineStr ( function () {/*!
     
+    
+#MasterPage1_HeaderContent_Header_Default_navBar_msgActivityHistory {
+    color: rgb(73, 69, 255);
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 3px 20px;
+    line-height: 0.5em;
+    background-color: rgba(209, 229, 255, 0.46);
+    font-family: serif;
+    border-radius: 11px;
+    box-shadow: 5px 5px 23px #888f88;
+}
     #autopost {
     background-color: red;
     color: white;
@@ -233,7 +240,7 @@ function ButtonClickAction (zEvent) {
 }
     #myContainer {
         position:               absolute;
-top: 35.7px;
+top: 68.7px;
 left: 200px;
         font-size:              20px;
         background:             #D63F0D;
@@ -410,5 +417,43 @@ function multilineStr (dummyFunc) {
         var textContent = document.createTextNode(message + '\n');
         pre.appendChild(textContent);
       }
+    
+    //cookie code to remember autopost setting
+    function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+        function updateIdleTimer()
+    {
+                    now = new Date();
+                    idleMins=Math.round((now.getTime()-today.getTime())/60000);
+
+                    timeDateSpan.innerText= idleMins + " mins. idle " +
+                    today.toLocaleTimeString().replace(" BST", "") +
+                    " " + dayofweek  +
+                    " " + dd+"/"+mm+"/"+yyyy; 
+
+                    if (idleMins >= UJM_TIMEOUT_MINS)addWarning();
+    }
+
+
    
 })();
+ 
