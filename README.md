@@ -19,3 +19,6 @@ Features:
 Upcoming Features:
 
 - Email job logs using Gmail API
+
+
+I've got some other scripts if any one is interest, latest is the one to filter the results table
