@@ -15,6 +15,10 @@
     var idleMins=0,now;
     var infoSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage1");
     var timeDateSpan=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_MONSMessage4");
+    
+    // jobs open in new tab
+    document.getElementById("MasterPage1_HeaderContent_Header_Default_navBar_hlJobs").setAttribute('target', '_blank');
+
 
     var noteT=document.getElementById("MasterPage1_RightColumnContent_InsertJobSearchNote_NoteTextArea");
     noteT.style.height="350px";
@@ -35,6 +39,30 @@
                                                                                 }
                                                 },1000);
                            });
+    
+    
+    var todaysDate = new Date();
+
+function convertDate(date) {
+  var yyyy = date.getFullYear().toString();
+  //var mm = (date.getMonth()+1).toString();
+    var months = [ 'Jan', 'Feb', 'Mar', 'Apr','May','June','July','Aug','Sep','Oct','Nov', 'Dec'];
+    var mm =months[date.getMonth()];
+  var dd  = date.getDate().toString();
+
+  var mmChars = mm.split('');
+  var ddChars = dd.split('');
+
+  //return yyyy + '-' + (mmChars[1]?mm:"0"+mmChars[0]) + '-' + (ddChars[1]?dd:"0"+ddChars[0]);
+     // return (ddChars[1]?dd:"0"+ddChars[0]) + '-' + (mmChars[1]?mm:"0"+mmChars[0]) + '-' + yyyy   ;
+          return (ddChars[1]?dd:"0"+ddChars[0]) + ' ' + mm + ', ' + yyyy   ;
+
+
+
+
+}
+    
+ console.log(convertDate(todaysDate));   
     // add global DOM  variables for gmail api cb function
     var s = document.createElement('script');
     s.type = 'text/javascript';
@@ -148,10 +176,11 @@ document.getElementById ("myButton").addEventListener (
         document.getElementById ("truncate").addEventListener (
     "click", function () {noteT.value=noteT.value.substring(0,240);checkNote();}, false);
 
-          var logs = [ 'Add all you activities to the logs array on line 135',
-                  'Add all you activities to the logs array on line 135',
-                  'Add all you activities to the logs array on line 135'
-              ];  
+    var logs = [                 'Looked for vacancies on Tesco and LIDL web sites',
+                                
+            
+              ];
+    
 
     var t0 = performance.now();
         for(var i = 0; i < logs.length; i = i + 1) {
@@ -203,14 +232,17 @@ function ButtonClickAction (zEvent) {
     if (document.getElementsByName("MasterPage1:RightColumnContent:InsertJobSearchNote:NoteTextArea")[0].value=="For example, enter details about following up on a job referral or calling about a job advertised in the newspaper.")
     {//add a default message
     var dailyLog=['logged onto UJM and searched jobs',
-               'searched UJM and indeed',
-               'performed search on UJM',
-               'log onto UJM and indeed',
-               'checked  Universal Job Match for new jobs',
-               'went onto UJM online and checked jobs',
-               'did search for new jobs on UJM',
+               'went on to jobmatch and  indeed job sites',
+               'Did daily search on UJM',
+               'logged into UJM and indeed',
+               'job search on Universal Job Match for all jobs',
+               'went in to jobmatch online and checked jobs',
+               'daily search for new jobs on UJM',
                'logged onto job match to look for jobs',
-               'went through new jobs on indeed and jobmatch', 'logged on to UJM to search jobs' ];
+               'did search for admin, retail and shop jobs using jobmatch and indeed',
+                  'went through bookmarked careers pages and checked for openings',
+                  'carried out daily search on UJM and looked on indeed.co.uk as well',
+               'went through all jobs on indeed and jobmatch', 'logged on to UJM to check for jobs','went on to indeed and jobmatch for jobserach online' ];
     
    document.getElementsByName("MasterPage1:RightColumnContent:InsertJobSearchNote:NoteTextArea")[0].value=dailyLog[Math.floor(Math.random()*dailyLog.length)];
     }
