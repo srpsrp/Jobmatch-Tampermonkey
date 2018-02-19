@@ -22,3 +22,5 @@ Upcoming Features:
 
 
 I've got some other scripts if any one is interest, latest is the one to filter the results table
+
+Perhaps the most or least problem with UJM is no option for negative keywords. My JCP coach wants me to apply for the occasional job from UJM directly but I find it nearly impossible due to all the spam. A new agency has started up in this area specialising in 0Hr contracts list 30+ jobs a day. This may not be pretty but hey it works.
